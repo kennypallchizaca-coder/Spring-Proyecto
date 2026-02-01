@@ -52,7 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
 
                         // Documentación técnica (Swagger/OpenAPI)
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/api-docs/**")
+                        .permitAll()
 
                         // Permisos de lectura global para perfiles y proyectos
                         .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
