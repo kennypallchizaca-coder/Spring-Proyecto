@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
-// controlador rest para la gestión de asesorías
+// Controlador REST para la gestión de solicitudes de asesoría entre programadores y solicitantes
 @RestController
 @RequestMapping("/api/advisories")
 @RequiredArgsConstructor
@@ -29,7 +29,8 @@ public class AdvisoryController {
     private final AdvisoryService advisoryService;
     private final AdvisoryMapper advisoryMapper;
 
-    // obtener todas las asesorías paginadas - solo admin
+    // Obtiene una página con todas las asesorías registradas (Solo accesible por
+    // Administradores)
     @GetMapping
     @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AdvisoryResponseDto>> obtenerTodasLasAsesorias(
@@ -38,14 +39,14 @@ public class AdvisoryController {
         return ResponseEntity.ok(advisories.map(advisoryMapper::toResponseDto));
     }
 
-    // obtener asesoría por id
+    // Retorna la información detallada de una asesoría específica por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<AdvisoryResponseDto> obtenerAsesoriaPorId(@PathVariable Long id) {
+    public ResponseEntity<AdvisoryResponseDto> obtenerAsesoriaPorId(@PathVariable("id") Long id) {
         Advisory advisory = advisoryService.obtenerAsesoriaPorId(id);
         return ResponseEntity.ok(advisoryMapper.toResponseDto(advisory));
     }
 
-    // obtener asesorías del programador actual
+    // Lista las asesorías asignadas al programador autenticado actualmente
     @GetMapping("/my-advisories")
     public ResponseEntity<Page<AdvisoryResponseDto>> obtenerMisAsesorias(
             @AuthenticationPrincipal String uid,
@@ -54,34 +55,34 @@ public class AdvisoryController {
         return ResponseEntity.ok(advisories.map(advisoryMapper::toResponseDto));
     }
 
-    // obtener asesorías de un programador específico
+    // Lista todas las asesorías asignadas a un programador específico
     @GetMapping("/programmer/{programmerId}")
     public ResponseEntity<Page<AdvisoryResponseDto>> obtenerAsesoriasPorProgramador(
-            @PathVariable String programmerId,
+            @PathVariable("programmerId") String programmerId,
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Advisory> advisories = advisoryService.obtenerAsesoriasPorProgramador(programmerId, pageable);
         return ResponseEntity.ok(advisories.map(advisoryMapper::toResponseDto));
     }
 
-    // obtener asesorías por email del solicitante
+    // Lista las asesorías solicitadas por un email de solicitante específico
     @GetMapping("/requester/{email}")
     public ResponseEntity<Page<AdvisoryResponseDto>> obtenerAsesoriasPorSolicitante(
-            @PathVariable String email,
+            @PathVariable("email") String email,
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Advisory> advisories = advisoryService.obtenerAsesoriasPorSolicitante(email, pageable);
         return ResponseEntity.ok(advisories.map(advisoryMapper::toResponseDto));
     }
 
-    // obtener asesorías por estado
+    // Filtra las asesorías según su estado actual (pending, approved, rejected)
     @GetMapping("/status/{status}")
     public ResponseEntity<Page<AdvisoryResponseDto>> obtenerAsesoriasPorEstado(
-            @PathVariable AdvisoryEntity.Status status,
+            @PathVariable("status") AdvisoryEntity.Status status,
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Advisory> advisories = advisoryService.obtenerAsesoriasPorEstado(status, pageable);
         return ResponseEntity.ok(advisories.map(advisoryMapper::toResponseDto));
     }
 
-    // crear solicitud de asesoría
+    // Registra una nueva solicitud de asesoría y notifica a las partes involucradas
     @PostMapping
     public ResponseEntity<AdvisoryResponseDto> crearAsesoria(@Valid @RequestBody AdvisoryRequestDto request) {
         Advisory advisoryModel = advisoryMapper.toModel(request);
@@ -89,10 +90,11 @@ public class AdvisoryController {
         return new ResponseEntity<>(advisoryMapper.toResponseDto(created), HttpStatus.CREATED);
     }
 
-    // actualizar estado de asesoría
+    // Cambia manualmente el estado de una asesoría (Requiere ser el programador
+    // asignado o Admin)
     @PatchMapping("/{id}/status")
     public ResponseEntity<AdvisoryResponseDto> actualizarEstado(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody Map<String, String> body,
             @AuthenticationPrincipal String uid) {
         String statusStr = body.get("status");
@@ -101,28 +103,28 @@ public class AdvisoryController {
         return ResponseEntity.ok(advisoryMapper.toResponseDto(updated));
     }
 
-    // aprobar asesoría
+    // Marca una asesoría como aprobada y notifica al solicitante
     @PatchMapping("/{id}/approve")
     public ResponseEntity<AdvisoryResponseDto> aprobarAsesoria(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @AuthenticationPrincipal String uid) {
         Advisory approved = advisoryService.aprobarAsesoria(id, uid);
         return ResponseEntity.ok(advisoryMapper.toResponseDto(approved));
     }
 
-    // rechazar asesoría
+    // Marca una asesoría como rechazada y notifica al solicitante
     @PatchMapping("/{id}/reject")
     public ResponseEntity<AdvisoryResponseDto> rechazarAsesoria(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @AuthenticationPrincipal String uid) {
         Advisory rejected = advisoryService.rechazarAsesoria(id, uid);
         return ResponseEntity.ok(advisoryMapper.toResponseDto(rejected));
     }
 
-    // eliminar asesoría
+    // Elimina el registro de una asesoría del sistema
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarAsesoria(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @AuthenticationPrincipal String uid) {
         advisoryService.eliminarAsesoria(id, uid);
         return ResponseEntity.noContent().build();

@@ -3,7 +3,7 @@ package com.lexisware.portafolio.portfolio.dtos;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-// DTO para solicitud de creación/actualización de portafolio
+// DTO para recibir los parámetros de configuración de un portafolio
 @Data
 public class PortfolioRequestDto {
 

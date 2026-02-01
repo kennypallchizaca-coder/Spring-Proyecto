@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import com.lexisware.portafolio.project.models.Project;
 
-// Modelo de Dominio de Portafolio
+// Modelo de dominio para representar un Portafolio de programador
 @Data
 public class Portfolio {
     private Long id;

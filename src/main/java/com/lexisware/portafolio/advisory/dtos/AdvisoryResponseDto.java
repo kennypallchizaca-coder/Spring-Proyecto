@@ -4,7 +4,7 @@ import com.lexisware.portafolio.advisory.entities.AdvisoryEntity;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-// DTO para respuesta de asesoría
+// DTO detallado para la respuesta de solicitudes de asesoría
 @Data
 public class AdvisoryResponseDto {
 

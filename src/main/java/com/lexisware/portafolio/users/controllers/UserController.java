@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-// controlador rest para la gestión de usuarios
+// Controlador REST para la gestión de perfiles de usuario y programadores
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -24,45 +24,46 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    // obtener todos los programadores
+    // Retorna una lista de todos los usuarios registrados con el rol de programador
     @GetMapping("/programmers")
     public ResponseEntity<List<UserResponseDto>> obtenerTodosLosProgramadores() {
         List<User> users = userService.obtenerProgramadores();
         return ResponseEntity.ok(userMapper.toResponseDtoList(users));
     }
 
-    // obtener programadores disponibles
+    // Retorna los programadores que han marcado su perfil como disponible para
+    // asesorías
     @GetMapping("/programmers/available")
     public ResponseEntity<List<UserResponseDto>> obtenerProgramadoresDisponibles() {
         List<User> users = userService.obtenerProgramadoresDisponibles();
         return ResponseEntity.ok(userMapper.toResponseDtoList(users));
     }
 
-    // obtener el perfil del usuario actual
+    // Obtiene el perfil completo del usuario autenticado actualmente
     @GetMapping("/me")
     public ResponseEntity<UserResponseDto> obtenerUsuarioActual(@AuthenticationPrincipal String uid) {
         User user = userService.obtenerUsuarioPorId(uid);
         return ResponseEntity.ok(userMapper.toResponseDto(user));
     }
 
-    // obtener usuario por id
+    // Busca un perfil de usuario específico por su identificador único (UID)
     @GetMapping("/{uid}")
-    public ResponseEntity<UserResponseDto> obtenerUsuarioPorId(@PathVariable String uid) {
+    public ResponseEntity<UserResponseDto> obtenerUsuarioPorId(@PathVariable("uid") String uid) {
         User user = userService.obtenerUsuarioPorId(uid);
         return ResponseEntity.ok(userMapper.toResponseDto(user));
     }
 
-    // crear o actualizar usuario
+    // Crea un nuevo registro de usuario o actualiza completamente uno existente
     @PostMapping
     public ResponseEntity<UserResponseDto> crearOActualizarUsuario(@RequestBody User user) {
         User saved = userService.crearOActualizarUsuario(user);
         return ResponseEntity.ok(userMapper.toResponseDto(saved));
     }
 
-    // actualizar perfil del usuario actual
+    // Permite la actualización parcial de campos del perfil de usuario
     @PatchMapping("/{uid}")
     public ResponseEntity<UserResponseDto> actualizarUsuario(
-            @PathVariable String uid,
+            @PathVariable("uid") String uid,
             @Valid @RequestBody UserUpdateRequestDto updateRequest) {
 
         User user = userService.obtenerUsuarioPorId(uid);
@@ -72,19 +73,20 @@ public class UserController {
         return ResponseEntity.ok(userMapper.toResponseDto(updated));
     }
 
-    // actualizar disponibilidad
+    // Cambia el estado de disponibilidad del programador para recibir nuevas
+    // asesorías
     @PatchMapping("/{uid}/availability")
     public ResponseEntity<UserResponseDto> actualizarDisponibilidad(
-            @PathVariable String uid,
+            @PathVariable("uid") String uid,
             @RequestBody Map<String, Boolean> body) {
         boolean available = body.getOrDefault("available", false);
         User updated = userService.actualizarDisponibilidad(uid, available);
         return ResponseEntity.ok(userMapper.toResponseDto(updated));
     }
 
-    // eliminar usuario
+    // Elimina la cuenta y todos los datos asociados al usuario
     @DeleteMapping("/{uid}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable String uid) {
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable("uid") String uid) {
         userService.eliminarUsuario(uid);
         return ResponseEntity.noContent().build();
     }

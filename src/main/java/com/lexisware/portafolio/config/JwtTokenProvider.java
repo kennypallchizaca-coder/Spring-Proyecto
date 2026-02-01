@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-//proveedor de tokens jwt - genera y valida tokens para autenticación
+// Proveedor de servicios para la creación, parseo y validación de tokens JWT
 @Component
 @Slf4j
 public class JwtTokenProvider {
@@ -18,32 +18,35 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    private long jwtExpirationInMs;
 
-    // obtiene la clave de firma
-    private SecretKey obtenerClaveFirma() {
+    // Generar la clave secreta segura para HMACS-SHA
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    // genera un token jwt para un usuario
+    // Genera un token JWT compacto con claims (sujeto, email, rol)
     public String generarToken(String userId, String email, String role) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtExpiration);
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
         return Jwts.builder()
+                .header()
+                .add("typ", "JWT")
+                .and()
                 .subject(userId)
                 .claim("email", email)
                 .claim("role", role)
                 .issuedAt(now)
                 .expiration(expiryDate)
-                .signWith(obtenerClaveFirma())
+                .signWith(getSigningKey(), Jwts.SIG.HS512)
                 .compact();
     }
 
-    // extrae el uid del usuario desde el token
-    public String obtenerIdUsuarioDeToken(String token) {
+    // Obtiene el identificador de usuario (Subject) del token
+    public String getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(obtenerClaveFirma())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -51,10 +54,10 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-    // extrae el email del usuario desde el token
-    public String obtenerEmailDeToken(String token) {
+    // Extrae el email del usuario desde los claims del token
+    public String getUserEmailFromJWT(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(obtenerClaveFirma())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -62,10 +65,10 @@ public class JwtTokenProvider {
         return claims.get("email", String.class);
     }
 
-    // extrae el rol del usuario desde el token
-    public String obtenerRolDeToken(String token) {
+    // Extrae el rol del usuario desde los claims del token
+    public String getUserRoleFromJWT(String token) {
         Claims claims = Jwts.parser()
-                .verifyWith(obtenerClaveFirma())
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
@@ -73,24 +76,24 @@ public class JwtTokenProvider {
         return claims.get("role", String.class);
     }
 
-    // valida un token jwt
+    // Valida la integridad, firma y expiración del token JWT
     public boolean validarToken(String authToken) {
         try {
             Jwts.parser()
-                    .verifyWith(obtenerClaveFirma())
+                    .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(authToken);
             return true;
         } catch (SecurityException ex) {
             log.error("Firma JWT inválida");
         } catch (MalformedJwtException ex) {
-            log.error("Token JWT inválido");
+            log.error("Token JWT malformado");
         } catch (ExpiredJwtException ex) {
             log.error("Token JWT expirado");
         } catch (UnsupportedJwtException ex) {
             log.error("Token JWT no soportado");
         } catch (IllegalArgumentException ex) {
-            log.error("JWT claims vacío");
+            log.error("La cadena claims de JWT está vacía");
         }
         return false;
     }

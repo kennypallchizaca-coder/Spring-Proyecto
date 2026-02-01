@@ -5,7 +5,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 import java.util.List;
 
-// DTO para solicitud de creación/actualización de proyecto
+// DTO para la captura y validación de datos en la creación o actualización de proyectos
 @Data
 public class ProjectRequestDto {
 

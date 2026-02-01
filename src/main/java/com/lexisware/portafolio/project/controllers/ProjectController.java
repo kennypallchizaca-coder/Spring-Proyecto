@@ -22,7 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 
-// controlador rest para la gestión de proyectos
+// Controlador REST para la gestión de proyectos individuales de los programadores
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
@@ -35,7 +35,7 @@ public class ProjectController {
     private final UserService userService;
     private final PortfolioService portfolioService;
 
-    // obtener todos los proyectos paginados - público
+    // Obtiene una página paginada de todos los proyectos disponibles en el sistema
     @GetMapping
     public ResponseEntity<Page<ProjectResponseDto>> obtenerTodosLosProyectos(
             @PageableDefault(size = 10) Pageable pageable) {
@@ -43,14 +43,14 @@ public class ProjectController {
         return ResponseEntity.ok(projects.map(projectMapper::toResponseDto));
     }
 
-    // obtener proyecto por id
+    // Busca los detalles de un proyecto específico por su ID
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectResponseDto> obtenerProyectoPorId(@PathVariable Long id) {
+    public ResponseEntity<ProjectResponseDto> obtenerProyectoPorId(@PathVariable("id") Long id) {
         Project project = projectService.obtenerProyectoPorId(id);
         return ResponseEntity.ok(projectMapper.toResponseDto(project));
     }
 
-    // obtener proyectos del usuario actual
+    // Retorna los proyectos que pertenecen al usuario autenticado
     @GetMapping("/my-projects")
     public ResponseEntity<Page<ProjectResponseDto>> obtenerMisProyectos(
             @AuthenticationPrincipal String uid,
@@ -59,34 +59,35 @@ public class ProjectController {
         return ResponseEntity.ok(projects.map(projectMapper::toResponseDto));
     }
 
-    // obtener proyectos de un usuario específico
+    // Retorna los proyectos asociados a un UID de usuario específico
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<ProjectResponseDto>> obtenerProyectosPorUsuario(
-            @PathVariable String userId,
+            @PathVariable("userId") String userId,
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Project> projects = projectService.obtenerProyectosPorPropietario(userId, pageable);
         return ResponseEntity.ok(projects.map(projectMapper::toResponseDto));
     }
 
-    // obtener proyectos por categoría
+    // Filtra proyectos por su categoría técnica (WEB, MOBILE, etc.)
     @GetMapping("/category/{category}")
     public ResponseEntity<Page<ProjectResponseDto>> obtenerProyectosPorCategoria(
-            @PathVariable ProjectEntity.Category category,
+            @PathVariable("category") ProjectEntity.Category category,
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Project> projects = projectService.obtenerProyectosPorCategoria(category, pageable);
         return ResponseEntity.ok(projects.map(projectMapper::toResponseDto));
     }
 
-    // obtener proyectos por rol
+    // Filtra proyectos por el rol desempeñado (FRONTEND, BACKEND, etc.)
     @GetMapping("/role/{role}")
     public ResponseEntity<Page<ProjectResponseDto>> obtenerProyectosPorRol(
-            @PathVariable ProjectEntity.ProjectRole role,
+            @PathVariable("role") ProjectEntity.ProjectRole role,
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Project> projects = projectService.obtenerProyectosPorRol(role, pageable);
         return ResponseEntity.ok(projects.map(projectMapper::toResponseDto));
     }
 
-    // crear proyecto nuevo
+    // Crea un nuevo proyecto vinculándolo al usuario y, opcionalmente, a un
+    // portafolio
     @PostMapping
     public ResponseEntity<ProjectResponseDto> crearProyecto(
             @Valid @RequestBody ProjectRequestDto request,
@@ -94,22 +95,22 @@ public class ProjectController {
 
         Project projectModel = projectMapper.toModel(request);
 
-        // resolver propietario - forzar al usuario actual
+        // El usuario autenticado es el propietario por defecto
         String ownerUid = uid;
 
-        // obtener modelo desde el servicio
+        // Intentar vincular el objeto de usuario completo para persistencia
         try {
             projectModel.setOwner(userService.obtenerUsuarioPorId(ownerUid));
         } catch (Exception e) {
-            log.error("Error al obtener usuario: {}", e.getMessage());
+            log.error("Error al obtener usuario para vincular al proyecto: {}", e.getMessage());
         }
 
-        // resolver portfolio
+        // Vincular el proyecto a un portafolio si se proporciona un ID
         if (request.getPortfolioId() != null) {
             try {
                 projectModel.setPortfolio(portfolioService.obtenerPortafolioPorId(request.getPortfolioId()));
             } catch (Exception e) {
-                log.error("Error al obtener portafolio: {}", e.getMessage());
+                log.error("Error al obtener portafolio para vincular al proyecto: {}", e.getMessage());
             }
         }
 
@@ -117,10 +118,10 @@ public class ProjectController {
         return new ResponseEntity<>(projectMapper.toResponseDto(created), HttpStatus.CREATED);
     }
 
-    // actualizar proyecto
+    // Actualiza los datos de un proyecto tras validar que el usuario tenga permisos
     @PatchMapping("/{id}")
     public ResponseEntity<ProjectResponseDto> actualizarProyecto(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody ProjectRequestDto request,
             @AuthenticationPrincipal String uid) {
 
@@ -132,10 +133,10 @@ public class ProjectController {
         return ResponseEntity.ok(projectMapper.toResponseDto(updated));
     }
 
-    // eliminar proyecto
+    // Elimina un proyecto definitivamente del sistema
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarProyecto(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @AuthenticationPrincipal String uid) {
 
         projectService.eliminarProyecto(id, uid);

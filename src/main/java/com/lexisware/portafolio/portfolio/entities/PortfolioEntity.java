@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-// Entidad Portafolio - Representa el portafolio de un usuario
+// Entidad JPA que representa el portafolio de un programador
 @Entity
 @Table(name = "portfolios")
 @Data
@@ -18,21 +18,20 @@ public class PortfolioEntity {
     private Long id;
 
     @Column(nullable = false, unique = true, name = "user_id")
-    private String userId; // UID del propietario
+    private String userId; // Identificador único del usuario propietario (UID)
 
-    // Relación OneToMany con Projects
+    // Lista de proyectos vinculados a este portafolio
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectEntity> projects = new ArrayList<>();
 
     @Column(nullable = false)
-    private String title; // Título del portafolio
+    private String title; // Título principal del portafolio
 
     @Column(length = 2000)
-    private String description; // Descripción del portafolio
+    private String description; // Descripción detallada o perfil del programador
 
-    private String theme; // Tema visual del portafolio
-
-    private Boolean isPublic = true; // Portafolio público o privado
+    private String theme; // Preferencia visual o tema del portafolio
+    private Boolean isPublic = true; // Define si el portafolio es visible públicamente
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

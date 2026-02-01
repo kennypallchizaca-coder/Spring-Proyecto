@@ -5,14 +5,14 @@ import lombok.Data;
 import com.lexisware.portafolio.users.entities.UserEntity;
 import com.lexisware.portafolio.users.models.User;
 
-// DTO para respuesta de autenticación
+// Respuesta exitosa tras la autenticación, con token JWT y datos del usuario
 @Data
 @AllArgsConstructor
 public class AuthResponse {
-    private String token; // JWT token
+    private String token; // Token JWT para autorización en cabeceras HTTP
     private UserDTO user;
 
-    // DTO simplificado del usuario (sin password)
+    // DTO anidado para transferir datos básicos del usuario sin sensitive info
     @Data
     @AllArgsConstructor
     public static class UserDTO {
@@ -22,7 +22,7 @@ public class AuthResponse {
         private String role;
         private Boolean available;
 
-        // Convierte User entity a DTO
+        // Factory method para crear el DTO desde una Entidad JPA
         public static UserDTO fromEntity(UserEntity user) {
             return new UserDTO(
                     user.getUid(),
@@ -32,7 +32,7 @@ public class AuthResponse {
                     user.getAvailable());
         }
 
-        // Convierte User model a DTO
+        // Factory method para crear el DTO desde un Modelo de negocio
         public static UserDTO fromModel(User user) {
             return new UserDTO(
                     user.getUid(),

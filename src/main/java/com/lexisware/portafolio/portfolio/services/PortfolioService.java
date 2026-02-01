@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// servicio de gestión de portafolios
+// Servicio para la gestión de la lógica de negocio de Portafolios
 @Service
 @RequiredArgsConstructor
 public class PortfolioService {
@@ -19,31 +19,33 @@ public class PortfolioService {
     private final PortfolioRepository portfolioRepository;
     private final PortfolioMapper portfolioMapper;
 
-    // Obtiene todos los portafolios públicos
+    // Retorna todos los portafolios marcados como públicos para visualización
+    // general
     public List<Portfolio> obtenerPortafoliosPublicos() {
         return portfolioRepository.findByIsPublicTrue().stream()
                 .map(portfolioMapper::toModel)
                 .toList();
     }
 
-    // Obtiene un portafolio por su ID
+    // Busca un portafolio por su ID único de base de datos
     public Portfolio obtenerPortafolioPorId(Long id) {
         PortfolioEntity entity = portfolioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Portafolio", "id", id));
         return portfolioMapper.toModel(entity);
     }
 
-    // Obtiene un portafolio por el ID de usuario
+    // Busca el portafolio asociado a un ID de usuario (UID) específico
     public Portfolio obtenerPortafolioPorUsuario(String uid) {
         PortfolioEntity entity = portfolioRepository.findByUserId(uid)
                 .orElseThrow(() -> new ResourceNotFoundException("Portafolio", "usuario", uid));
         return portfolioMapper.toModel(entity);
     }
 
-    // Crea un nuevo portafolio
+    // Crea un nuevo registro de portafolio validando que el usuario no posea uno
+    // previamente
     @Transactional
     public Portfolio crearPortafolio(Portfolio portfolioModel) {
-        // verificar si ya existe
+        // Restricción: Un usuario solo puede tener un portafolio activo
         if (portfolioRepository.existsByUserId(portfolioModel.getUserId())) {
             throw new IllegalStateException("El usuario ya tiene un portafolio");
         }
@@ -56,38 +58,39 @@ public class PortfolioService {
         return portfolioMapper.toModel(saved);
     }
 
-    // Valida la propiedad del portafolio
+    // Regla de seguridad interna para validar si el usuario tiene permisos de
+    // edición
     private void validarPropiedad(PortfolioEntity portfolio, String appUserUid) {
-        // verificar si es admin o moderador
-        boolean isAdminOrMod = org.springframework.security.core.context.SecurityContextHolder.getContext()
+        // Los administradores tienen permiso total de gestión
+        boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_MODERATOR"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (isAdminOrMod) {
+        if (isAdmin) {
             return;
         }
 
-        // verificar si es el dueño
+        // El propietario del portafolio tiene permiso de edición
         if (portfolio.getUserId() != null && portfolio.getUserId().equals(appUserUid)) {
             return;
         }
 
-        // denegar acceso
+        // Denegar acceso si no es propietario ni administrador
         throw new org.springframework.security.access.AccessDeniedException(
                 "No tienes permisos para modificar este portafolio");
     }
 
-    // Actualiza un portafolio existente
+    // Actualiza los campos informativos de un portafolio existente
     @Transactional
     public Portfolio actualizarPortafolio(Long id, Portfolio portfolioUpdateModel, String requestUserUid) {
         PortfolioEntity existingEntity = portfolioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Portafolio", "id", id));
 
-        // verificar permisos
+        // Verificar permisos antes de aplicar cambios
         validarPropiedad(existingEntity, requestUserUid);
 
-        // actualizar campos
+        // Actualización condicional de campos informativos
         if (portfolioUpdateModel.getTitle() != null)
             existingEntity.setTitle(portfolioUpdateModel.getTitle());
         if (portfolioUpdateModel.getDescription() != null)
@@ -103,13 +106,13 @@ public class PortfolioService {
         return portfolioMapper.toModel(saved);
     }
 
-    // Elimina un portafolio
+    // Elimina el registro de un portafolio de la base de datos
     @Transactional
     public void eliminarPortafolio(Long id, String requestUserUid) {
         PortfolioEntity entity = portfolioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Portafolio", "id", id));
 
-        // verificar permisos
+        // Verificar permisos de eliminación
         validarPropiedad(entity, requestUserUid);
 
         portfolioRepository.delete(entity);

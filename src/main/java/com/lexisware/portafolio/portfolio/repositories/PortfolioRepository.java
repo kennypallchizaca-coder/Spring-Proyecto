@@ -7,16 +7,16 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.List;
 
-// Repositorio para gestión de portafolios
+// Repositorio para gestionar el almacenamiento de Portafolios
 @Repository
 public interface PortfolioRepository extends JpaRepository<PortfolioEntity, Long> {
 
-    // Buscar portafolio por usuario
+    // Busca un portafolio vinculado a un UID de usuario único
     Optional<PortfolioEntity> findByUserId(String userId);
 
-    // Buscar portafolios públicos
+    // Lista todos los portafolios marcados como públicos para visualización externa
     List<PortfolioEntity> findByIsPublicTrue();
 
-    // Verificar si existe portafolio para un usuario
+    // Verifica si un usuario ya posee un portafolio registrado
     boolean existsByUserId(String userId);
 }

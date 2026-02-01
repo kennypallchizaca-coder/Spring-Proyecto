@@ -4,11 +4,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import com.lexisware.portafolio.users.models.User;
 
-// Modelo de Dominio de Asesoría
+// Modelo de dominio para representar una sesión de Asesoría técnica
 @Data
 public class Advisory {
     private Long id;
-    private User programmer;
     private String programmerId;
     private String programmerEmail;
     private String programmerName;

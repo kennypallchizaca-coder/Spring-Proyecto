@@ -13,39 +13,39 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        final String securitySchemeName = "Bearer Authentication";
+        @Bean
+        public OpenAPI customOpenAPI() {
+                final String securitySchemeName = "Bearer Authentication";
 
-        return new OpenAPI()
-                .info(new Info()
-                        .title("LEXISWARE Portafolio API")
-                        .version("1.0.0")
-                        .description("""
-                                API REST para gestión de portafolios, proyectos y asesorías.
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("LEXISWARE Portafolio API")
+                                                .version("1.0.0")
+                                                .description("""
+                                                                API REST para gestión de portafolios, proyectos y asesorías.
 
-                                **Características:**
-                                - Autenticación JWT
-                                - Autorización por roles (STUDENT, PROGRAMMER, ADMIN)
-                                - Validación de ownership
-                                - Sistema de emails
-                                - Almacenamiento de imágenes en Cloudinary
-                                """)
-                        .contact(new Contact()
-                                .name("LEXISWARE")
-                                .email("contact@lexisware.com")
-                                .url("https://lexisware.com"))
-                        .license(new License()
-                                .name("MIT License")
-                                .url("https://opensource.org/licenses/MIT")))
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(securitySchemeName,
-                                new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("Ingresa el token JWT (sin 'Bearer ')")));
-    }
+                                                                **Características:**
+                                                                - Autenticación JWT
+                                                                 - Autorización por roles (PROGRAMMER, ADMIN, EXTERNAL)
+                                                                - Validación de ownership
+                                                                - Sistema de emails
+                                                                - Almacenamiento de imágenes en Cloudinary
+                                                                """)
+                                                .contact(new Contact()
+                                                                .name("LEXISWARE")
+                                                                .email("contact@lexisware.com")
+                                                                .url("https://lexisware.com"))
+                                                .license(new License()
+                                                                .name("MIT License")
+                                                                .url("https://opensource.org/licenses/MIT")))
+                                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                                .components(new Components()
+                                                .addSecuritySchemes(securitySchemeName,
+                                                                new SecurityScheme()
+                                                                                .name(securitySchemeName)
+                                                                                .type(SecurityScheme.Type.HTTP)
+                                                                                .scheme("bearer")
+                                                                                .bearerFormat("JWT")
+                                                                                .description("Ingresa el token JWT (sin 'Bearer ')")));
+        }
 }

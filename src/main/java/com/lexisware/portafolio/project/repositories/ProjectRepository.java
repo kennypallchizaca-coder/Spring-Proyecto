@@ -7,19 +7,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-// Repositorio para gestión de proyectos
+// Repositorio para la gestión de persistencia de Proyectos
 @Repository
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
-    // Buscar proyectos por dueño (usando UID del User)
+    // Recupera proyectos paginados pertenecientes a un usuario específico
     Page<ProjectEntity> findByOwner_Uid(String uid, Pageable pageable);
 
-    // Buscar proyectos por categoría
+    // Filtra proyectos por su categoría (académico/laboral) de forma paginada
     Page<ProjectEntity> findByCategory(ProjectEntity.Category category, Pageable pageable);
 
-    // Buscar proyectos por rol
+    // Filtra proyectos por el rol desempeñado en el mismo
     Page<ProjectEntity> findByRole(ProjectEntity.ProjectRole role, Pageable pageable);
 
-    // Buscar proyectos por dueño y categoría
+    // Búsqueda combinada por propietario y categoría del proyecto
     Page<ProjectEntity> findByOwner_UidAndCategory(String uid, ProjectEntity.Category category, Pageable pageable);
 }

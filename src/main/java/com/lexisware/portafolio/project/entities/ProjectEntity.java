@@ -8,7 +8,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//Entidad Proyecto - Representa proyectos académicos o laborales
+// Entidad JPA que representa un proyecto en la base de datos
 @Entity
 @Table(name = "projects")
 @Data
@@ -18,57 +18,57 @@ public class ProjectEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación ManyToOne con User (dueño del proyecto)
+    // Usuario propietario del proyecto
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     @JsonIgnoreProperties({ "password", "projects", "advisoriesAsProgrammer" })
     private UserEntity owner;
 
-    // Relación ManyToOne con Portfolio
+    // Portafolio al que pertenece este proyecto
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_id")
     @JsonIgnoreProperties({ "projects", "user" })
     private PortfolioEntity portfolio;
 
     @Column(nullable = false)
-    private String title; // Título del proyecto
+    private String title; // Título descriptivo del proyecto
 
     @Column(length = 1000)
-    private String description; // Descripción detallada
+    private String description; // Breve explicación de las funcionalidades del proyecto
 
     @Enumerated(EnumType.STRING)
-    private Category category; // Académico o Laboral
+    private Category category; // Clasificación del proyecto (académico o laboral)
 
     @Enumerated(EnumType.STRING)
-    private ProjectRole role; // Rol en el proyecto
+    private ProjectRole role; // Rol desempeñado por el autor del proyecto
 
-    // Stack tecnológico utilizado
+    // Lista de tecnologías, lenguajes y frameworks utilizados
     @ElementCollection
     @CollectionTable(name = "project_tech_stack", joinColumns = @JoinColumn(name = "project_id"))
     @Column(name = "technology")
     private List<String> techStack;
 
-    private String repoUrl; // URL del repositorio
-    private String demoUrl; // URL de la demo
-    private String imageUrl; // URL de imagen del proyecto
+    private String repoUrl; // Enlace al repositorio de código fuente (GitHub, GitLab, etc.)
+    private String demoUrl; // Enlace a la demostración en vivo o despliegue
+    private String imageUrl; // URL de la imagen representativa del proyecto
 
     @Column(name = "programmer_name")
-    private String programmerName; // Nombre del programador
+    private String programmerName; // Nombre redundante del programador para búsquedas rápidas
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Categoría del proyecto
+    // Define el tipo de proyecto
     public enum Category {
-        academico, // Proyecto académico
-        laboral // Proyecto laboral
+        academico, // Realizado en entorno educativo
+        laboral // Realizado para un cliente o empresa
     }
 
-    // Rol del programador en el proyecto
+    // Define el rol desempeñado en el proyecto
     public enum ProjectRole {
-        frontend, // Desarrollo frontend
-        backend, // Desarrollo backend
-        fullstack, // Desarrollo fullstack
-        db // Diseño de base de datos
+        frontend, // Desarrollo de interfaz
+        backend, // Desarrollo de lógica de servidor
+        fullstack, // Desarrollo integral
+        db // Enfoque en base de datos y arquitectura
     }
 }

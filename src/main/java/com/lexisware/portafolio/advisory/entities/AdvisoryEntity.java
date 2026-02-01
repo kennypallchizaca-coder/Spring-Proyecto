@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-// Entidad Asesoría - Representa solicitudes de asesoría técnica
+// Entidad JPA que representa una solicitud de asesoría técnica
 @Entity
 @Table(name = "advisories")
 @Data
@@ -15,16 +15,14 @@ public class AdvisoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relación ManyToOne con User (programador)
-    // insertable=false, updatable=false porque ya mapeamos la columna programmer_id
-    // abajo
+    // Usuario que actúa como programador/mentor en la sesión
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
     private UserEntity programmer;
 
-    // Información del programador que dará la asesoría
+    // UID del programador asignado
     @Column(name = "programmer_id", nullable = false)
-    private String programmerId; // UID del programador
+    private String programmerId;
 
     @Column(name = "programmer_email")
     private String programmerEmail;
@@ -32,16 +30,16 @@ public class AdvisoryEntity {
     @Column(name = "programmer_name")
     private String programmerName;
 
-    // Información del solicitante
+    // Nombre del usuario que solicita la asesoría
     @Column(name = "requester_name", nullable = false)
     private String requesterName;
 
     @Column(name = "requester_email", nullable = false)
     private String requesterEmail;
 
-    // Detalles de la cita
-    private String date; // Fecha de la asesoría
-    private String time; // Hora de la asesoría
+    // Detalles de agenda de la sesión
+    private String date; // Fecha programada para la asesoría
+    private String time; // Hora pactada para el encuentro
 
     @Column(length = 1000)
     private String note; // Nota o descripción de la asesoría
@@ -52,10 +50,10 @@ public class AdvisoryEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Estados de la asesoría
+    // Enumeración de los estados posibles de una solicitud
     public enum Status {
-        pending, // Pendiente de aprobación
-        approved, // Aprobada
-        rejected // Rechazada
+        pending, // Esperando respuesta del programador
+        approved, // Aceptada y programada
+        rejected // Denegada por el mentor
     }
 }

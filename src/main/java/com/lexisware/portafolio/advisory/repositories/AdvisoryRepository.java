@@ -7,20 +7,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-// Repositorio para gestión de asesorías
+// Repositorio para la administración de solicitudes de Asesoría
 @Repository
 public interface AdvisoryRepository extends JpaRepository<AdvisoryEntity, Long> {
 
-    // Buscar asesorías por programador
+    // Lista las asesorías asignadas a un programador específico
     Page<AdvisoryEntity> findByProgrammerId(String programmerId, Pageable pageable);
 
-    // Buscar asesorías por email del solicitante
+    // Recupera asesorías iniciadas por un email de solicitante particular
     Page<AdvisoryEntity> findByRequesterEmail(String email, Pageable pageable);
 
-    // Buscar asesorías por estado
+    // Filtra las solicitudes de asesoría según su estado (pendiente, aprobada,
+    // etc.)
     Page<AdvisoryEntity> findByStatus(AdvisoryEntity.Status status, Pageable pageable);
-
-    // Buscar asesorías pendientes de un programador
-    Page<AdvisoryEntity> findByProgrammerIdAndStatus(String programmerId, AdvisoryEntity.Status status,
-            Pageable pageable);
 }

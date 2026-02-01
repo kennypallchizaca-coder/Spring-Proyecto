@@ -3,7 +3,7 @@ package com.lexisware.portafolio.portfolio.dtos;
 import lombok.Data;
 import java.time.LocalDateTime;
 
-// DTO para respuesta de portafolio
+// DTO de respuesta que contiene la información pública de un portafolio
 @Data
 public class PortfolioResponseDto {
 

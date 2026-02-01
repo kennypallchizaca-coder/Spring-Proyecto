@@ -3,7 +3,7 @@ package com.lexisware.portafolio.advisory.dtos;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
-// DTO para solicitud de creación de asesoría
+// DTO encargado de validar la información de una reserva de asesoría
 @Data
 public class AdvisoryRequestDto {
 

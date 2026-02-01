@@ -46,13 +46,13 @@ public class UserEntity {
     private String whatsapp; // URL de WhatsApp
 
     // Habilidades técnicas del usuario
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_skills", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "skill")
     private List<String> skills;
 
     // Horarios disponibles para asesorías
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "user_schedules", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "time_slot")
     private List<String> schedule;

@@ -6,7 +6,7 @@ import java.util.List;
 import com.lexisware.portafolio.users.models.User;
 import com.lexisware.portafolio.portfolio.models.Portfolio;
 
-// Modelo de Dominio de Proyecto
+// Modelo de dominio que representa un Proyecto en la lógica de negocio
 @Data
 public class Project {
     private Long id;
@@ -23,11 +23,13 @@ public class Project {
     private String programmerName;
     private LocalDateTime createdAt;
 
+    // Categoría del proyecto para filtrado
     public enum Category {
         academico,
         laboral
     }
 
+    // Roles disponibles en el desarrollo
     public enum ProjectRole {
         frontend,
         backend,

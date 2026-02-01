@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
-//filtro de autenticación jwt - intercepta requests y valida el token jwt
+// Filtro de interceptación para validar tokens JWT en cada petición HTTP
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -26,48 +26,43 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider tokenProvider;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         try {
-            // extraer token del header authorization
+            // Extraer el token de la cabecera "Authorization: Bearer <token>"
             String jwt = obtenerJwtDeRequest(request);
 
+            // Validar existencia y formato del token
             if (StringUtils.hasText(jwt) && tokenProvider.validarToken(jwt)) {
-                // extraer información del usuario
-                String userId = tokenProvider.obtenerIdUsuarioDeToken(jwt);
-                String role = tokenProvider.obtenerRolDeToken(jwt);
+                String userId = tokenProvider.getUserIdFromJWT(jwt);
+                String userRole = tokenProvider.getUserRoleFromJWT(jwt);
+                String userEmail = tokenProvider.getUserEmailFromJWT(jwt);
 
-                // crear autenticación con el rol del usuario
+                // Crear objeto de autoridad basado en el rol del usuario
+                SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + userRole);
+
+                // Establecer el contexto de seguridad de Spring con la información del usuario
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userId,
-                        null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
+                        userId, userEmail, Collections.singletonList(authority));
 
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request));
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // establecer autenticación en el contexto de seguridad
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                log.debug("Usuario autenticado: {} con rol: {}", userId, role);
             }
         } catch (Exception ex) {
-            log.error("No se pudo establecer la autenticación del usuario: {}", ex.getMessage());
+            log.error("No se pudo establecer la autenticación del usuario en el contexto de seguridad", ex);
         }
 
+        // Continuar con la cadena de filtros
         filterChain.doFilter(request, response);
     }
 
-    // extrae el token jwt del header authorization (formato: "Bearer {token}")
+    // Utilidad para extraer el token JWT de la cabecera de la petición
     private String obtenerJwtDeRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
-
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-
         return null;
     }
 }

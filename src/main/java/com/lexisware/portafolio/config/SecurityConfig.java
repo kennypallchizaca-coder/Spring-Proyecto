@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// Configuración de seguridad con JWT - Define endpoints públicos/protegidos y autenticación stateless
+// Configuración principal de Spring Security - Define la política de acceso y cadena de filtros
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -22,54 +22,54 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
 
-    // Encoder de passwords con BCrypt
+    // Bean para el algoritmo de hash de contraseñas (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Configuración de seguridad HTTP
+    // Configuración de la cadena de filtros de seguridad HTTP
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Deshabilitar CSRF (no necesario en API stateless)
+                // Deshabilitar CSRF ya que la autenticación es vía Token (Stateless)
                 .csrf(csrf -> csrf.disable())
 
-                // Permitir CORS
+                // Configuración de CORS basada en el bean definido en CorsConfig
                 .cors(cors -> {
                 })
 
-                // Sesiones stateless (sin cookies)
+                // Establecer política de sesión como STATELESS (sin estado ni cookies)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Autorización de endpoints
+                // Definición de reglas de autorización por ruta y método
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos (Auth y Public)
+                        // Rutas públicas de autenticación y recursos públicos
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
 
-                        // Actuator - Health checks y monitoring
+                        // Endpoints de monitoreo del sistema (Actuator)
                         .requestMatchers("/actuator/**").permitAll()
 
-                        // Swagger - Documentación de API
+                        // Documentación técnica (Swagger/OpenAPI)
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                        // Endpoints públicos de lectura (GET) - Para que cualquiera vea el portafolio
+                        // Permisos de lectura global para perfiles y proyectos
                         .requestMatchers(HttpMethod.GET, "/api/projects/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/portfolios/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
 
-                        // Endpoints protegidos (Escritura y otros) - Requieren autenticación
+                        // Rutas que requieren autenticación explícita (Escritura/Gestión)
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/projects/**").authenticated()
-                        .requestMatchers("/api/advisories/**").authenticated() // Asesorías siguen privadas por defecto
+                        .requestMatchers("/api/advisories/**").authenticated()
                         .requestMatchers("/api/portfolios/**").authenticated()
-                        .requestMatchers("/api/files/**").authenticated() // Upload de archivos requiere autenticación
+                        .requestMatchers("/api/files/**").authenticated()
 
-                        // Cualquier otro endpoint requiere autenticación
+                        // Cualquier otra petición no especificada debe ser autenticada
                         .anyRequest().authenticated())
 
-                // Agregar filtro JWT antes del filtro de autenticación estándar
+                // Interceptar peticiones con el filtro JWT antes del filtro de usuario/password
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

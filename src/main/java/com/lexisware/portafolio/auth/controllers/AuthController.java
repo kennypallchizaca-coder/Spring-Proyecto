@@ -22,15 +22,15 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // registrar nuevo usuario
+    // Registrar una nueva cuenta de usuario
     @PostMapping("/register")
-    @Operation(summary = "Registrar nuevo usuario", description = "Crea un nuevo usuario y retorna un token JWT")
+    @Operation(summary = "Registrar usuario", description = "Crea una nueva cuenta de usuario y retorna el token de acceso")
     public ResponseEntity<AuthResponse> registrar(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.registrar(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // iniciar sesión
+    // Autenticar usuario existente
     @PostMapping("/login")
     @Operation(summary = "Iniciar sesión", description = "Autentica usuario y retorna token JWT")
     public ResponseEntity<AuthResponse> iniciarSesion(@Valid @RequestBody LoginRequest request) {
@@ -38,7 +38,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    // obtener usuario actual
+    // Obtener información del perfil del usuario autenticado
     @GetMapping("/me")
     @Operation(summary = "Obtener usuario actual", description = "Retorna información del usuario autenticado")
     public ResponseEntity<User> obtenerUsuarioActual(@AuthenticationPrincipal String uid) {

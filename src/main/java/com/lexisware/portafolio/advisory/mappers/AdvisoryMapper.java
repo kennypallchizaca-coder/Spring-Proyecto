@@ -9,11 +9,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Mapper para convertir entre Entidad, Modelo y DTOs
+// Clase para el mapeo de datos relacionados con Asesorías
 @Component
 public class AdvisoryMapper {
 
-    // Entidad -> Modelo
+    // Convierte una entidad de base de datos a un modelo de negocio de Asesoría
     public Advisory toModel(AdvisoryEntity entity) {
         if (entity == null)
             return null;
@@ -35,7 +35,7 @@ public class AdvisoryMapper {
         return model;
     }
 
-    // Modelo -> Entidad
+    // Convierte un modelo de negocio a una entidad JPA para persistencia
     public AdvisoryEntity toEntity(Advisory model) {
         if (model == null)
             return null;
@@ -59,7 +59,7 @@ public class AdvisoryMapper {
         return entity;
     }
 
-    // DTO -> Modelo
+    // Transforma un DTO de solicitud a un modelo de negocio
     public Advisory toModel(AdvisoryRequestDto dto) {
         if (dto == null)
             return null;
@@ -75,7 +75,7 @@ public class AdvisoryMapper {
         return model;
     }
 
-    // Modelo -> DTO
+    // Transforma un modelo de negocio a un DTO de respuesta para la API
     public AdvisoryResponseDto toResponseDto(Advisory model) {
         if (model == null)
             return null;
@@ -91,7 +91,7 @@ public class AdvisoryMapper {
         dto.setNote(model.getNote());
 
         if (model.getStatus() != null)
-            dto.setStatus(AdvisoryEntity.Status.valueOf(model.getStatus().name())); // DTO usa Enum de Entidad por ahora
+            dto.setStatus(AdvisoryEntity.Status.valueOf(model.getStatus().name()));
 
         dto.setCreatedAt(model.getCreatedAt());
         return dto;

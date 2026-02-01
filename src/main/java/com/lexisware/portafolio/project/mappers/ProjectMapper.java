@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// Mapper para convertir entre Entidad, Modelo y DTOs
+// Clase para el mapeo de datos entre Entidades, Modelos y DTOs del módulo de Proyectos
 @Component
 public class ProjectMapper {
 
@@ -24,7 +24,7 @@ public class ProjectMapper {
     @Lazy
     private PortfolioMapper portfolioMapper;
 
-    // Entidad -> Modelo
+    // Transforma una entidad de base de datos a un modelo de negocio de Proyecto
     public Project toModel(ProjectEntity entity) {
         if (entity == null)
             return null;
@@ -46,7 +46,7 @@ public class ProjectMapper {
         model.setProgrammerName(entity.getProgrammerName());
         model.setCreatedAt(entity.getCreatedAt());
 
-        // Mapear relaciones
+        // Mapeo recursivo de propietario y portafolio si existen
         if (entity.getOwner() != null) {
             model.setOwner(userMapper.toModel(entity.getOwner()));
         }
@@ -57,7 +57,7 @@ public class ProjectMapper {
         return model;
     }
 
-    // Modelo -> Entidad
+    // Transforma un modelo de negocio a una entidad JPA para persistencia
     public ProjectEntity toEntity(Project model) {
         if (model == null)
             return null;
@@ -91,7 +91,7 @@ public class ProjectMapper {
         return entity;
     }
 
-    // DTO -> Modelo
+    // Crea un modelo de negocio a partir de un DTO de creación de proyecto
     public Project toModel(ProjectRequestDto dto) {
         if (dto == null)
             return null;
@@ -99,8 +99,7 @@ public class ProjectMapper {
         model.setTitle(dto.getTitle());
         model.setDescription(dto.getDescription());
 
-        // Mapeo de Enums (Los Enums de Entidad usados en DTO coinciden con los del
-        // Modelo)
+        // Mapeo selectivo de categorías y roles
         if (dto.getCategory() != null)
             model.setCategory(Project.Category.valueOf(dto.getCategory().name()));
 
@@ -112,14 +111,11 @@ public class ProjectMapper {
         model.setDemoUrl(dto.getDemoUrl());
         model.setImageUrl(dto.getImageUrl());
 
-        // Los IDs de Owner y Portfolio son manejados en el Controlador o Servicio para
-        // obtener el Modelo
-        // Generalmente, el Servicio busca las dependencias por ID y las establece en el
-        // Modelo.
-
         return model;
     }
 
+    // Actualiza un modelo existente con los datos proporcionados en el DTO (Update
+    // parcial)
     public void updateModel(Project model, ProjectRequestDto dto) {
         if (dto.getTitle() != null)
             model.setTitle(dto.getTitle());
@@ -142,7 +138,7 @@ public class ProjectMapper {
             model.setImageUrl(dto.getImageUrl());
     }
 
-    // Modelo -> DTO
+    // Transforma un modelo de negocio a un DTO de respuesta para consumo externo
     public ProjectResponseDto toResponseDto(Project model) {
         if (model == null)
             return null;
@@ -152,8 +148,7 @@ public class ProjectMapper {
         dto.setDescription(model.getDescription());
 
         if (model.getCategory() != null)
-            dto.setCategory(ProjectEntity.Category.valueOf(model.getCategory().name())); // DTO usa tipo Entidad por
-                                                                                         // ahora
+            dto.setCategory(ProjectEntity.Category.valueOf(model.getCategory().name()));
 
         if (model.getRole() != null)
             dto.setRole(ProjectEntity.ProjectRole.valueOf(model.getRole().name()));
@@ -165,6 +160,7 @@ public class ProjectMapper {
         dto.setProgrammerName(model.getProgrammerName());
         dto.setCreatedAt(model.getCreatedAt());
 
+        // Mapeo simplificado del propietario para el DTO de respuesta
         if (model.getOwner() != null) {
             ProjectResponseDto.OwnerDto ownerDto = new ProjectResponseDto.OwnerDto();
             ownerDto.setUid(model.getOwner().getUid());
@@ -176,6 +172,7 @@ public class ProjectMapper {
         return dto;
     }
 
+    // Convierte una lista de modelos a una lista de DTOs de respuesta
     public List<ProjectResponseDto> toResponseDtoList(List<Project> models) {
         return models.stream()
                 .map(this::toResponseDto)

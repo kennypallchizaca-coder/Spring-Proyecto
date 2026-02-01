@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-// DTO para solicitud de registro
+// DTO para la captura de datos durante el registro de nuevos usuarios
 @Data
 public class RegisterRequest {
 
@@ -20,6 +20,6 @@ public class RegisterRequest {
     @NotBlank(message = "El nombre es obligatorio")
     private String displayName;
 
-    // rol opcional - si no se envía, se asigna CLIENT por defecto
+    // Rol asignado al usuario (ROLE_USER, ROLE_ADMIN, ROLE_PROGRAMMER)
     private String role;
 }

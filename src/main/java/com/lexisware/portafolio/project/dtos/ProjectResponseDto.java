@@ -5,7 +5,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// DTO para respuesta de proyecto
+// Objeto de transferencia de datos para la visualización de proyectos
 @Data
 public class ProjectResponseDto {
 
@@ -21,7 +21,7 @@ public class ProjectResponseDto {
     private String programmerName;
     private LocalDateTime createdAt;
 
-    // Información del propietario (sin datos sensibles)
+    // Información reducida del propietario del proyecto
     private OwnerDto owner;
 
     @Data

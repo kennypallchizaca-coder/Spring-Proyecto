@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-// Manejador global de excepciones
+// Manejador global de excepciones para centralizar las respuestas de error de la API
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Maneja recursos no encontrados
+    // Captura excepciones cuando un recurso (usuario, proyecto, etc.) no existe
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    // Maneja accesos no autorizados (401)
+    // Gestiona errores de autenticación (credenciales inválidas o falta de token)
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -34,7 +34,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    // Maneja acceso denegado por roles o ownership (403) - Spring Security
+    // Maneja casos donde el usuario está autenticado pero no tiene roles
+    // suficientes
     @ExceptionHandler({ org.springframework.security.access.AccessDeniedException.class,
             org.springframework.security.authorization.AuthorizationDeniedException.class })
     public ResponseEntity<ErrorResponse> handleAccessDenied(Exception ex) {
@@ -45,7 +46,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    // Maneja errores de validación
+    // Procesa errores de validación de campos en los @RequestBody (ej. @NotBlank,
+    // @Email)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -55,6 +57,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
+        // Estructura de respuesta detallada para errores de formulario
         Map<String, Object> response = new HashMap<>();
         response.put("status", HttpStatus.BAD_REQUEST.value());
         response.put("errors", errors);
@@ -63,7 +66,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    // Maneja excepciones generales
+    // Captura cualquier otra excepción no controlada para evitar fugas de
+    // información técnica
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex) {
         ErrorResponse error = new ErrorResponse(
@@ -73,7 +77,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    // Clase para respuestas de error
+    // Representación inmutable de un error para la respuesta JSON
     private record ErrorResponse(int status, String message, LocalDateTime timestamp) {
     }
 }

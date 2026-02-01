@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// servicio de gestión de usuarios
+// Servicio para la gestión de usuarios y perfiles de programadores
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -19,52 +19,69 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    // obtener todos los programadores
+    @Transactional(readOnly = true)
     public List<User> obtenerProgramadores() {
         List<UserEntity> entities = userRepository.findByRole(UserEntity.Role.PROGRAMMER);
         return userMapper.toModelList(entities);
     }
 
-    // obtener programadores disponibles (devuelve todos los programadores, la
-    // disponibilidad se verifica en el controlador)
+    // Retorna todos los programadores (la lógica de filtros adicionales se aplica
+    // en capas superiores)
+    @Transactional(readOnly = true)
     public List<User> obtenerProgramadoresDisponibles() {
         List<UserEntity> entities = userRepository.findByRole(UserEntity.Role.PROGRAMMER);
         return userMapper.toModelList(entities);
     }
 
-    // obtener usuario por id
+    // Busca un usuario específico por su identificador único (UID)
+    @Transactional(readOnly = true)
     public User obtenerUsuarioPorId(String uid) {
         UserEntity entity = userRepository.findById(uid)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "uid", uid));
         return userMapper.toModel(entity);
     }
 
-    // crear o actualizar usuario
+    // Crea un nuevo registro o actualiza uno existente manejando la persistencia de
+    // datos sensibles
     @Transactional
     public User crearOActualizarUsuario(User userModel) {
+        // Verificar existencia previa para preservar campos que no deben sobrescribirse
+        userRepository.findById(userModel.getUid()).ifPresentOrElse(
+                existing -> {
+                    // Preservar la contraseña actual si no se proporciona una nueva
+                    if (userModel.getPassword() == null) {
+                        userModel.setPassword(existing.getPassword());
+                    }
+                    // Mantener la fecha de creación original
+                    if (userModel.getCreatedAt() == null) {
+                        userModel.setCreatedAt(existing.getCreatedAt());
+                    }
+                    userModel.setUpdatedAt(LocalDateTime.now());
+                },
+                () -> {
+                    // Configuración inicial para nuevos registros
+                    if (userModel.getPassword() == null) {
+                        userModel.setPassword("123456"); // Contraseña temporal por defecto
+                    }
+                    userModel.setCreatedAt(LocalDateTime.now());
+                });
+
         UserEntity entity = userMapper.toEntity(userModel);
-
-        if (userRepository.existsById(entity.getUid())) {
-            entity.setUpdatedAt(LocalDateTime.now());
-        }
-
-        // mantener fecha de creación si existe
-        if (entity.getCreatedAt() == null) {
-            entity.setCreatedAt(LocalDateTime.now());
-        }
-
         UserEntity saved = userRepository.save(entity);
         return userMapper.toModel(saved);
     }
 
-    // actualizar perfil de usuario
+    // Actualización parcial de campos del perfil de usuario
     @Transactional
     public User actualizarUsuario(String uid, User userModelUpdate) {
+        // Recuperar entidad actual de la base de datos
         UserEntity existingEntity = userRepository.findById(uid)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "uid", uid));
 
+        // Convertir a modelo para manipulación segura
         User existingModel = userMapper.toModel(existingEntity);
 
+        // Actualización condicional de campos (solo si se proporcionan nuevos valores)
         if (userModelUpdate.getDisplayName() != null)
             existingModel.setDisplayName(userModelUpdate.getDisplayName());
         if (userModelUpdate.getBio() != null)
@@ -79,15 +96,23 @@ public class UserService {
             existingModel.setSchedule(userModelUpdate.getSchedule());
         if (userModelUpdate.getAvailable() != null)
             existingModel.setAvailable(userModelUpdate.getAvailable());
+        if (userModelUpdate.getGithub() != null)
+            existingModel.setGithub(userModelUpdate.getGithub());
+        if (userModelUpdate.getInstagram() != null)
+            existingModel.setInstagram(userModelUpdate.getInstagram());
+        if (userModelUpdate.getWhatsapp() != null)
+            existingModel.setWhatsapp(userModelUpdate.getWhatsapp());
 
+        // Actualizar marca de tiempo de modificación
         existingModel.setUpdatedAt(LocalDateTime.now());
 
+        // Mapear de vuelta a entidad y persistir cambios
         UserEntity toSave = userMapper.toEntity(existingModel);
         UserEntity saved = userRepository.save(toSave);
         return userMapper.toModel(saved);
     }
 
-    // actualizar disponibilidad
+    // Cambia el estado de disponibilidad de un programador
     @Transactional
     public User actualizarDisponibilidad(String uid, boolean available) {
         UserEntity entity = userRepository.findById(uid)
@@ -98,7 +123,7 @@ public class UserService {
         return userMapper.toModel(saved);
     }
 
-    // eliminar usuario
+    // Elimina permanentemente el registro de un usuario
     @Transactional
     public void eliminarUsuario(String uid) {
         if (!userRepository.existsById(uid)) {
