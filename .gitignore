@@ -1,0 +1,110 @@
+# ==========================================
+# Git Ignore - LEXISWARE Portafolio Backend
+# ==========================================
+
+# ========================================
+# ARCHIVOS SENSIBLES (NUNCA SUBIR)
+# ========================================
+.env
+.env.local
+.env.*.local
+*.env
+secrets/
+*.pem
+*.key
+service-account*.json
+
+# ========================================
+# GRADLE
+# ========================================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ========================================
+# INTELLIJ IDEA
+# ========================================
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# ========================================
+# ECLIPSE
+# ========================================
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# ========================================
+# NETBEANS
+# ========================================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# ========================================
+# VS CODE
+# ========================================
+.vscode/
+*.code-workspace
+
+# ========================================
+# SISTEMA OPERATIVO
+# ========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ========================================
+# LOGS
+# ========================================
+*.log
+logs/
+spring.log
+
+# ========================================
+# ARCHIVOS TEMPORALES
+# ========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ========================================
+# DOCKER (Local overrides)
+# ========================================
+docker-compose.override.yml
+docker-compose.local.yml
+
+# ========================================
+# OTROS
+# ========================================
+target/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+*.ear
+hs_err_pid*
+replay_pid*

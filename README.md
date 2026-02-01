@@ -55,6 +55,49 @@ El sistema está diseñado para ser configurado mediante variables de entorno, f
 - **MAIL_USERNAME, MAIL_PASSWORD:** Configuración del servidor de correo.
 - **CORS_ALLOWED_ORIGINS:** Control de dominios permitidos para el frontend.
 
+### 5.1 Despliegue en Render
+
+#### Opción 1: Despliegue con Blueprint (Recomendado)
+1. Sube el proyecto a un repositorio de GitHub/GitLab
+2. En Render Dashboard, selecciona **"New" → "Blueprint"**
+3. Conecta tu repositorio y Render detectará automáticamente el archivo `render.yaml`
+4. Configura las variables de entorno marcadas como `sync: false` en el Dashboard
+
+#### Opción 2: Despliegue Manual con Docker
+1. En Render Dashboard, selecciona **"New" → "Web Service"**
+2. Conecta tu repositorio
+3. Configura:
+   - **Environment:** Docker
+   - **Dockerfile Path:** `./Dockerfile`
+   - **Health Check Path:** `/actuator/health`
+4. Añade las siguientes **variables de entorno** en el Dashboard:
+
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `DB_URL` | URL de conexión PostgreSQL | `jdbc:postgresql://host:5432/db` |
+| `DB_USERNAME` | Usuario de la base de datos | `postgres` |
+| `DB_PASSWORD` | Contraseña de la base de datos | `********` |
+| `JWT_SECRET` | Clave secreta para JWT (min. 256 bits) | `tu_clave_secreta_muy_larga` |
+| `SPRING_PROFILES_ACTIVE` | Perfil de Spring | `prod` |
+| `CORS_ALLOWED_ORIGINS` | URLs del frontend permitidas | `https://tuapp.vercel.app` |
+| `MAIL_USERNAME` | Email para SMTP | `tu@email.com` |
+| `MAIL_PASSWORD` | Contraseña de aplicación SMTP | `********` |
+| `CLOUDINARY_CLOUD_NAME` | Nombre de cloud en Cloudinary | `tu_cloud` |
+| `CLOUDINARY_API_KEY` | API Key de Cloudinary | `123456789` |
+| `CLOUDINARY_API_SECRET` | API Secret de Cloudinary | `********` |
+
+#### Base de Datos PostgreSQL
+Puedes usar:
+- **Render PostgreSQL** (mismo proveedor, baja latencia)
+- **Supabase** (ya configurado en el proyecto)
+- **Railway**, **Neon**, u otro servicio PostgreSQL
+
+#### Notas Importantes para Render
+- El **free tier** de Render suspende el servicio tras 15 minutos de inactividad
+- El primer request después de suspensión puede tardar 30-60 segundos (cold start)
+- Para producción real, considera el plan **Starter** ($7/mes)
+- El perfil `prod` desactiva Swagger por seguridad. Para habilitarlo: `SWAGGER_ENABLED=true`
+
 ## 7. Estructura Organizacional del Proyecto
 El código fuente se organiza siguiendo una estructura modular por dominio, facilitando la escalabilidad y el aislamiento de responsabilidades. A continuación se detalla la función de cada componente:
 
