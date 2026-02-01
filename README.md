@@ -84,7 +84,6 @@ Cada módulo principal sigue una arquitectura interna estandarizada para mantene
 ## 8. Pruebas y Documentación Interactiva
 Para facilitar la verificación y el consumo de los servicios, el sistema expone una interfaz interactiva de Swagger UI donde se pueden probar todos los endpoints disponibles, consultar los esquemas de datos y validar los requisitos de seguridad.
 
-- **Swagger UI (Producción - Railway):** [https://spring-proyecto-production.up.railway.app/swagger-ui.html](https://spring-proyecto-production.up.railway.app/swagger-ui.html)
 - **Swagger UI (Entorno Local):** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 - **Definición OpenAPI (JSON):** `/api-docs`
 
