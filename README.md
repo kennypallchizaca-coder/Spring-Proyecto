@@ -391,7 +391,7 @@ erDiagram
     
     PORTFOLIOS {
         bigint id PK "Auto-increment"
-        string user_id FK UK "1 usuario = 1 portafolio"
+        string user_id FK "1 usuario - 1 portafolio"
         string title
         text description
         string theme
