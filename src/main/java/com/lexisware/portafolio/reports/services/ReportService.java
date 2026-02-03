@@ -15,15 +15,74 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import com.lexisware.portafolio.project.repositories.ProjectRepository;
+import com.lexisware.portafolio.project.entities.ProjectEntity;
+
 @Service
 public class ReportService {
 
     private final UserRepository userRepository;
     private final AdvisoryRepository advisoryRepository;
+    private final ProjectRepository projectRepository;
 
-    public ReportService(UserRepository userRepository, AdvisoryRepository advisoryRepository) {
+    public ReportService(UserRepository userRepository, AdvisoryRepository advisoryRepository,
+            ProjectRepository projectRepository) {
         this.userRepository = userRepository;
         this.advisoryRepository = advisoryRepository;
+        this.projectRepository = projectRepository;
+    }
+
+    public ByteArrayInputStream generateUserProjectsPdf(String userUid) {
+        Document document = new Document(PageSize.A4);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter.getInstance(document, out);
+            document.open();
+
+            // Título
+            Font fontTitle = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Color.BLACK);
+            Paragraph title = new Paragraph("Reporte de Proyectos", fontTitle);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+
+            // Info del Usuario
+            UserEntity user = userRepository.findById(userUid).orElse(null);
+            String userName = (user != null) ? user.getDisplayName() : "Usuario Desconocido";
+            Paragraph subtitle = new Paragraph("Programador: " + userName);
+            subtitle.setAlignment(Element.ALIGN_CENTER);
+            document.add(subtitle);
+
+            document.add(new Paragraph(" ")); // Espacio
+
+            // Tabla
+            PdfPTable table = new PdfPTable(3);
+            table.setWidthPercentage(100);
+            table.setWidths(new int[] { 3, 4, 3 });
+
+            addTableHeader(table, "Título");
+            addTableHeader(table, "Descripción");
+            addTableHeader(table, "Tecnologías");
+
+            List<ProjectEntity> projects = projectRepository
+                    .findByOwner_Uid(userUid, org.springframework.data.domain.Pageable.unpaged()).getContent();
+
+            for (ProjectEntity project : projects) {
+                table.addCell(project.getTitle());
+                table.addCell(project.getDescription() != null ? project.getDescription() : "Sin descripción");
+
+                String stack = (project.getTechStack() != null) ? String.join(", ", project.getTechStack()) : "N/A";
+                table.addCell(stack);
+            }
+
+            document.add(table);
+            document.close();
+
+        } catch (DocumentException e) {
+            throw new RuntimeException("Error al generar PDF: " + e.getMessage());
+        }
+
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
     public ByteArrayInputStream generateProgrammersPdf() {

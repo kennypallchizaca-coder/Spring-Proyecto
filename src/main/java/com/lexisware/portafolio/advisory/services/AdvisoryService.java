@@ -23,7 +23,6 @@ public class AdvisoryService {
     private final AdvisoryRepository advisoryRepository;
     private final AdvisoryMapper advisoryMapper;
     private final EmailService emailService;
-    private final com.lexisware.portafolio.notifications.services.NotificationService notificationService;
 
     // Obtiene una página con todas las asesorías registradas en el sistema
     public Page<Advisory> obtenerTodasLasAsesorias(Pageable pageable) {

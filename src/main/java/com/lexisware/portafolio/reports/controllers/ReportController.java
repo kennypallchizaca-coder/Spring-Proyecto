@@ -49,4 +49,19 @@ public class ReportController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(bis));
     }
+
+    @GetMapping("/projects/{uid}/pdf")
+    public ResponseEntity<InputStreamResource> downloadUserProjectsReport(
+            @org.springframework.web.bind.annotation.PathVariable("uid") String uid) {
+        ByteArrayInputStream bis = reportService.generateUserProjectsPdf(uid);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=proyectos.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(bis));
+    }
 }

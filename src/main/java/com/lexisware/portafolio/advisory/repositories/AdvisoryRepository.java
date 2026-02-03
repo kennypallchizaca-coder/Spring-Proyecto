@@ -24,6 +24,9 @@ public interface AdvisoryRepository extends JpaRepository<AdvisoryEntity, Long> 
     // Contar asesorías por estado
     long countByStatus(AdvisoryEntity.Status status);
 
+    // Buscar asesorías por fecha
+    java.util.List<AdvisoryEntity> findByDate(String date);
+
     // Agrupar asesorías por mes (Historial) - Postgres format
     @org.springframework.data.jpa.repository.Query("SELECT new com.lexisware.portafolio.dashboard.dtos.AdvisoryStatsDto(CONCAT(TO_CHAR(a.createdAt, 'Mon'), ' ', TO_CHAR(a.createdAt, 'YYYY')), COUNT(a)) FROM AdvisoryEntity a GROUP BY TO_CHAR(a.createdAt, 'Mon'), TO_CHAR(a.createdAt, 'YYYY'), EXTRACT(YEAR FROM a.createdAt), EXTRACT(MONTH FROM a.createdAt) ORDER BY EXTRACT(YEAR FROM a.createdAt), EXTRACT(MONTH FROM a.createdAt)")
     java.util.List<com.lexisware.portafolio.dashboard.dtos.AdvisoryStatsDto> countAdvisoriesByMonth();
