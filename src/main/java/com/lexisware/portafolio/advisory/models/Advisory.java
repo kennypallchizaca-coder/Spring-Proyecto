@@ -2,7 +2,6 @@ package com.lexisware.portafolio.advisory.models;
 
 import lombok.Data;
 import java.time.LocalDateTime;
-import com.lexisware.portafolio.users.models.User;
 
 // Modelo de dominio para representar una sesión de Asesoría técnica
 @Data

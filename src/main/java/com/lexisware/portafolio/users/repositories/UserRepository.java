@@ -22,4 +22,12 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     // Buscar programadores disponibles por rol
     List<UserEntity> findByRoleAndAvailableTrue(UserEntity.Role role);
+
+    // Contar usuarios por rol
+    long countByRole(UserEntity.Role role);
+
+    // Estadísticas: Crecimiento de usuarios por mes (PostgreSQL specific date
+    // function)
+    @org.springframework.data.jpa.repository.Query("SELECT new com.lexisware.portafolio.dashboard.dtos.UserGrowthStats(CAST(EXTRACT(MONTH FROM u.createdAt) AS int), CAST(EXTRACT(YEAR FROM u.createdAt) AS int), COUNT(u)) FROM UserEntity u GROUP BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt) ORDER BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt)")
+    java.util.List<com.lexisware.portafolio.dashboard.dtos.UserGrowthStats> countUsersByGrowth();
 }

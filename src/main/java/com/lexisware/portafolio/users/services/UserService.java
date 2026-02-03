@@ -18,6 +18,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public List<User> obtenerProgramadores() {
@@ -48,10 +49,14 @@ public class UserService {
         // Verificar existencia previa para preservar campos que no deben sobrescribirse
         userRepository.findById(userModel.getUid()).ifPresentOrElse(
                 existing -> {
-                    // Preservar la contraseña actual si no se proporciona una nueva
-                    if (userModel.getPassword() == null) {
+                    // Si se proporciona una nueva contraseña, encriptarla
+                    if (userModel.getPassword() != null && !userModel.getPassword().isEmpty()) {
+                        userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
+                    } else {
+                        // Si no, mantener la existente
                         userModel.setPassword(existing.getPassword());
                     }
+
                     // Mantener la fecha de creación original
                     if (userModel.getCreatedAt() == null) {
                         userModel.setCreatedAt(existing.getCreatedAt());
@@ -60,8 +65,11 @@ public class UserService {
                 },
                 () -> {
                     // Configuración inicial para nuevos registros
-                    if (userModel.getPassword() == null) {
-                        userModel.setPassword("123456"); // Contraseña temporal por defecto
+                    if (userModel.getPassword() == null || userModel.getPassword().isEmpty()) {
+                        userModel.setPassword(passwordEncoder.encode("123456")); // Contraseña temporal por defecto
+                                                                                 // encriptada
+                    } else {
+                        userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
                     }
                     userModel.setCreatedAt(LocalDateTime.now());
                 });

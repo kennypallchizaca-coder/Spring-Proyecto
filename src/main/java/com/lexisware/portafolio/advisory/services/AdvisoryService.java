@@ -23,6 +23,7 @@ public class AdvisoryService {
     private final AdvisoryRepository advisoryRepository;
     private final AdvisoryMapper advisoryMapper;
     private final EmailService emailService;
+    private final com.lexisware.portafolio.notifications.services.NotificationService notificationService;
 
     // Obtiene una página con todas las asesorías registradas en el sistema
     public Page<Advisory> obtenerTodasLasAsesorias(Pageable pageable) {
@@ -95,7 +96,7 @@ public class AdvisoryService {
     }
 
     // Valida si el usuario que intenta gestionar la asesoría tiene los permisos
-    // necesarios (Admin o Programador asignado)
+    // necesarios
     private void validarPropiedad(AdvisoryEntity advisory, String appUserUid) {
         boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -125,7 +126,6 @@ public class AdvisoryService {
         AdvisoryEntity updatedAdvisory = advisoryRepository.save(entity);
 
         // Notificar al solicitante sobre la resolución de su solicitud
-        // (aprobada/rechazada)
         try {
             emailService.sendAdvisoryStatusUpdate(
                     updatedAdvisory.getRequesterEmail(),
@@ -133,7 +133,7 @@ public class AdvisoryService {
                     status.name().toLowerCase(),
                     updatedAdvisory.getProgrammerName());
         } catch (Exception e) {
-            log.error("Error al enviar notificación de actualización de estado: {}", e.getMessage());
+            log.error("Error al enviar email de actualización de estado: {}", e.getMessage());
         }
 
         return advisoryMapper.toModel(updatedAdvisory);

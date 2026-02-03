@@ -22,4 +22,8 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
 
     // Búsqueda combinada por propietario y categoría del proyecto
     Page<ProjectEntity> findByOwner_UidAndCategory(String uid, ProjectEntity.Category category, Pageable pageable);
+
+    // Estadísticas: Contar proyectos por usuario
+    @org.springframework.data.jpa.repository.Query("SELECT new com.lexisware.portafolio.dashboard.dtos.UserProjectCount(p.owner.displayName, COUNT(p)) FROM ProjectEntity p GROUP BY p.owner.displayName")
+    java.util.List<com.lexisware.portafolio.dashboard.dtos.UserProjectCount> countProjectsByUser();
 }
