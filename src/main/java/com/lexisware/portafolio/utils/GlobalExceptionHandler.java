@@ -1,5 +1,7 @@
 package com.lexisware.portafolio.utils;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -36,8 +38,7 @@ public class GlobalExceptionHandler {
 
     // Maneja casos donde el usuario está autenticado pero no tiene roles
     // suficientes
-    @ExceptionHandler({ org.springframework.security.access.AccessDeniedException.class,
-            org.springframework.security.authorization.AuthorizationDeniedException.class })
+    @ExceptionHandler({ AccessDeniedException.class, AuthorizationDeniedException.class })
     public ResponseEntity<ErrorResponse> handleAccessDenied(Exception ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),

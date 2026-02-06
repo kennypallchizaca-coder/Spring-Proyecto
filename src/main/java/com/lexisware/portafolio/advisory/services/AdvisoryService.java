@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +99,7 @@ public class AdvisoryService {
     // Valida si el usuario que intenta gestionar la asesoría tiene los permisos
     // necesarios
     private void validarPropiedad(AdvisoryEntity advisory, String appUserUid) {
-        boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder.getContext()
+        boolean isAdmin = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -106,7 +108,7 @@ public class AdvisoryService {
             return;
         }
 
-        throw new org.springframework.security.access.AccessDeniedException(
+        throw new AccessDeniedException(
                 "No tienes permisos para gestionar esta asesoría");
     }
 

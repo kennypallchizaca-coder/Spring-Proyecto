@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,7 +53,7 @@ public class ReportController {
 
     @GetMapping("/projects/{uid}/pdf")
     public ResponseEntity<InputStreamResource> downloadUserProjectsReport(
-            @org.springframework.web.bind.annotation.PathVariable("uid") String uid) {
+            @PathVariable("uid") String uid) {
         ByteArrayInputStream bis = reportService.generateUserProjectsPdf(uid);
 
         HttpHeaders headers = new HttpHeaders();

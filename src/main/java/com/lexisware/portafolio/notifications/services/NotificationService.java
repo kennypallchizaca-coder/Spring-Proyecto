@@ -1,11 +1,15 @@
 package com.lexisware.portafolio.notifications.services;
 
 import com.lexisware.portafolio.advisory.repositories.AdvisoryRepository;
+import com.lexisware.portafolio.advisory.entities.AdvisoryEntity;
 import com.lexisware.portafolio.utils.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +24,12 @@ public class NotificationService {
         log.info("[CRON] Ejecutando recordatorios diarios de asesorías...");
 
         // Buscar asesorías para el día siguiente (mañana)
-        java.time.LocalDate tomorrowDate = java.time.LocalDate.now().plusDays(1);
+        LocalDate tomorrowDate = LocalDate.now().plusDays(1);
         String tomorrow = tomorrowDate.toString(); // LocalDate.toString() devuelve formato ISO (YYYY-MM-DD)
-        java.util.List<com.lexisware.portafolio.advisory.entities.AdvisoryEntity> advisories = advisoryRepository
-                .findByDate(tomorrow);
+        List<AdvisoryEntity> advisories = advisoryRepository.findByDate(tomorrow);
 
-        for (com.lexisware.portafolio.advisory.entities.AdvisoryEntity advisory : advisories) {
-            if (advisory.getStatus() == com.lexisware.portafolio.advisory.entities.AdvisoryEntity.Status.approved) {
+        for (AdvisoryEntity advisory : advisories) {
+            if (advisory.getStatus() == AdvisoryEntity.Status.approved) {
                 // Enviar recordatorio al programador
                 try {
                     emailService.sendHtmlEmail(

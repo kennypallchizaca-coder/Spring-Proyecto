@@ -8,6 +8,8 @@ import com.lexisware.portafolio.utils.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -85,7 +87,7 @@ public class ProjectService {
     private void validarPropiedad(ProjectEntity project, String appUserUid) {
         // Verificar si el usuario tiene el rol de administrador en el contexto de
         // seguridad
-        boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder.getContext()
+        boolean isAdmin = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -101,7 +103,7 @@ public class ProjectService {
         }
 
         // Si no cumple ninguna, denegar la operación (403 Forbidden)
-        throw new org.springframework.security.access.AccessDeniedException(
+        throw new AccessDeniedException(
                 "No tienes permisos para modificar este proyecto");
     }
 

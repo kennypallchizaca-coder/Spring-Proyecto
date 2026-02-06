@@ -1,9 +1,12 @@
 package com.lexisware.portafolio.users.repositories;
 
 import com.lexisware.portafolio.users.entities.UserEntity;
+import com.lexisware.portafolio.dashboard.dtos.UserGrowthStats;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +31,6 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 
     // Estadísticas: Crecimiento de usuarios por mes (PostgreSQL specific date
     // function)
-    @org.springframework.data.jpa.repository.Query("SELECT new com.lexisware.portafolio.dashboard.dtos.UserGrowthStats(CAST(EXTRACT(MONTH FROM u.createdAt) AS int), CAST(EXTRACT(YEAR FROM u.createdAt) AS int), COUNT(u)) FROM UserEntity u GROUP BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt) ORDER BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt)")
-    java.util.List<com.lexisware.portafolio.dashboard.dtos.UserGrowthStats> countUsersByGrowth();
+    @Query("SELECT new com.lexisware.portafolio.dashboard.dtos.UserGrowthStats(CAST(EXTRACT(MONTH FROM u.createdAt) AS int), CAST(EXTRACT(YEAR FROM u.createdAt) AS int), COUNT(u)) FROM UserEntity u GROUP BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt) ORDER BY EXTRACT(YEAR FROM u.createdAt), EXTRACT(MONTH FROM u.createdAt)")
+    List<UserGrowthStats> countUsersByGrowth();
 }

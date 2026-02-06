@@ -6,6 +6,8 @@ import com.lexisware.portafolio.portfolio.mappers.PortfolioMapper;
 import com.lexisware.portafolio.portfolio.models.Portfolio;
 import com.lexisware.portafolio.utils.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -62,7 +64,7 @@ public class PortfolioService {
     // edición
     private void validarPropiedad(PortfolioEntity portfolio, String appUserUid) {
         // Los administradores tienen permiso total de gestión
-        boolean isAdmin = org.springframework.security.core.context.SecurityContextHolder.getContext()
+        boolean isAdmin = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -77,7 +79,7 @@ public class PortfolioService {
         }
 
         // Denegar acceso si no es propietario ni administrador
-        throw new org.springframework.security.access.AccessDeniedException(
+        throw new AccessDeniedException(
                 "No tienes permisos para modificar este portafolio");
     }
 
