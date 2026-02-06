@@ -15,6 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,7 +25,7 @@ import org.springframework.data.web.PageableDefault;
 @RestController
 @RequestMapping("/api/advisories")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class AdvisoryController {
 
     private final AdvisoryService advisoryService;
@@ -32,7 +34,7 @@ public class AdvisoryController {
     // Obtiene una página con todas las asesorías registradas (Solo accesible por
     // Administradores)
     @GetMapping
-    @org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<AdvisoryResponseDto>> obtenerTodasLasAsesorias(
             @PageableDefault(size = 10) Pageable pageable) {
         Page<Advisory> advisories = advisoryService.obtenerTodasLasAsesorias(pageable);

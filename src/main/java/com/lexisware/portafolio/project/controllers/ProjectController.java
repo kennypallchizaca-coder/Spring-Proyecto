@@ -26,7 +26,7 @@ import org.springframework.data.web.PageableDefault;
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 @Slf4j
 public class ProjectController {
 
