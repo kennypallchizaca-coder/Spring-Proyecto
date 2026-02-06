@@ -4,30 +4,44 @@ import com.lexisware.portafolio.portfolio.entities.PortfolioEntity;
 import com.lexisware.portafolio.users.entities.UserEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.time.LocalDateTime;
 import java.util.List;
 
 // Entidad JPA que representa un proyecto en la base de datos
 @Entity
 @Table(name = "projects")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ProjectEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     // Usuario propietario del proyecto
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     @JsonIgnoreProperties({ "password", "projects", "advisoriesAsProgrammer" })
+    @ToString.Exclude
     private UserEntity owner;
 
     // Portafolio al que pertenece este proyecto
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "portfolio_id")
     @JsonIgnoreProperties({ "projects", "user" })
+    @ToString.Exclude
     private PortfolioEntity portfolio;
 
     @Column(nullable = false)

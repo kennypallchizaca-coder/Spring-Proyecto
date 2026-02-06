@@ -2,22 +2,35 @@ package com.lexisware.portafolio.advisory.entities;
 
 import com.lexisware.portafolio.users.entities.UserEntity;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.time.LocalDateTime;
 
 // Entidad JPA que representa una solicitud de asesoría técnica
 @Entity
 @Table(name = "advisories")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class AdvisoryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     // Usuario que actúa como programador/mentor en la sesión
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
+    @ToString.Exclude
     private UserEntity programmer;
 
     // UID del programador asignado

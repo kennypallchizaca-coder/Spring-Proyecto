@@ -4,7 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lexisware.portafolio.advisory.entities.AdvisoryEntity;
 import com.lexisware.portafolio.project.entities.ProjectEntity;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,10 +18,16 @@ import java.util.List;
 // Entidad Usuario - Representa programadores, administradores y usuarios externos
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserEntity {
 
     @Id
+    @EqualsAndHashCode.Include
     private String uid; // ID único del usuario
 
     @Column(nullable = false, unique = true)
@@ -60,11 +72,13 @@ public class UserEntity {
     // Relación OneToMany con Projects (proyectos que pertenecen al usuario)
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("owner")
+    @ToString.Exclude
     private List<ProjectEntity> projects = new ArrayList<>();
 
     // Relación OneToMany con Advisories (asesorías donde el usuario es programador)
     @OneToMany(mappedBy = "programmer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("programmer")
+    @ToString.Exclude
     private List<AdvisoryEntity> advisoriesAsProgrammer = new ArrayList<>();
 
     @Column(name = "created_at")

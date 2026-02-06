@@ -2,7 +2,13 @@ package com.lexisware.portafolio.portfolio.entities;
 
 import com.lexisware.portafolio.project.entities.ProjectEntity;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,11 +16,17 @@ import java.util.List;
 // Entidad JPA que representa el portafolio de un programador
 @Entity
 @Table(name = "portfolios")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class PortfolioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, unique = true, name = "user_id")
@@ -22,6 +34,7 @@ public class PortfolioEntity {
 
     // Lista de proyectos vinculados a este portafolio
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<ProjectEntity> projects = new ArrayList<>();
 
     @Column(nullable = false)
